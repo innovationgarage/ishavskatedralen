@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--dfpath', type=str, default='dataframes/', help='Path to save dataframe containing measurements')
     parser.add_argument('--seqpath', type=str, default='sequences/', help='Path to save sequences')
     
-    parser.add_argument('--red', type=int, default=30, help='Sensitivity of the RED channel')
+    parser.add_argument('--red', type=int, default=40, help='Sensitivity of the RED channel')
     parser.add_argument('--green', type=int, default=30, help='Sensitivity of the GREEN channel')
     parser.add_argument('--blue', type=int, default=30, help='Sensitivity of the BLUE channel')
     parser.add_argument('--lower_s', type=float, default=0, help='Lower limit of the S channel')
@@ -107,14 +107,14 @@ def main():
         
         with serial.Serial(args.serial, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE) as ser:
             if args.boost_green:
-                col_seq_rgb, row_seq_rgb = tools.img2seq(res_g_rgb, shape)
-                seq_rgb = row_seq_rgb
+                seq_rgb = tools.img2seq(res_g_rgb, shape, args)
             else:
-                col_seq_rgb, row_seq_rgb = tools.img2seq(res_all_rgb, shape)
-                seq_rgb = row_seq_rgb
+                seq_rgb = tools.img2seq(res_all_rgb, shape, args)
             
             values = bytearray(seq_rgb)
+            print(seq_rgb)
             ser.write(values)
+#            print(ser.readline())
 
         # write all measurements to a dataframe
         df_line = [vname, frame_no, flux_r, flux_g, flux_b, area_r, area_g, area_b]
@@ -122,22 +122,24 @@ def main():
             df_line.append(seq_rgb[i])
         df.loc[frame_no] = df_line
                 
-        # output the original and filtered frames
-        # cv2.putText(res_r_bgr, "frame {}".format(frame_no), (150,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,250), 2)
-        # cv2.imshow("red", res_r_bgr)
-        # cv2.putText(res_g_bgr, "frame {}".format(frame_no), (150,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,250), 2)
-        # cv2.imshow("green", res_g_bgr)
-        # cv2.putText(res_b_bgr, "frame {}".format(frame_no), (150,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,250), 2)
-        # cv2.imshow("blue", res_b_bgr)
         cv2.putText(frame_bgr, "frame {}".format(frame_no), (150,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,250), 2)
         cv2.imshow("BGR", frame_bgr)
-        cv2.putText(res_all_bgr, "frame {}".format(frame_no), (150,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,250), 2)
-        cv2.imshow("res all", res_all_bgr)
+        if args.boost_green:
+            cv2.putText(res_g_bgr, "frame {}".format(frame_no), (150,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,250), 2)
+            cv2.imshow("res G", res_g_bgr)
+        else:
+            cv2.putText(res_all_bgr, "frame {}".format(frame_no), (150,20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50,170,250), 2)
+            cv2.imshow("res all", res_all_bgr)
         
         # Exit if ESC pressed
         k = cv2.waitKey(1) & 0xff
         if k == 27:
             df.to_csv(os.path.join(args.dfpath, vname.replace('.mp4', '.csv'), index=False))
+            # write the nonzero sequences into separate files /per channel)
+            for channel in ['r', 'g', 'b']:
+                print('writing sequences of channel {}'.format(channel))
+                outpath = os.path.join(args.seqpath, 'seq_{}.csv'.format(channel))
+                Channelmax = tools.write_sequences(df['frame_no'].min(), df['frame_no'].max(), df, channel, outpath)
             break
         
     df['r_seq'] = df['frame_no'].apply(lambda fno: np.array([df.loc[df.frame_no==fno, ch].values[0] for ch in r_chs]))
@@ -148,8 +150,9 @@ def main():
     # write the nonzero sequences into separate files /per channel)
     for channel in ['r', 'g', 'b']:
         print('writing sequences of channel {}'.format(channel))
-        outpath = os.path.join(args.seqpath, 'seq_{}.csv'.format(channel))
-        Channelmax = tools.write_sequences(df['frame_no'].min(), df['frame_no'].max(), df, channel, outpath)
+        outpath = os.path.join(args.seqpath, '{}_{}.csv'.format(vname.replace('.mp4', ''), channel))
+        with open(outpath, 'w+') as f:
+            tools.write_sequences(df['frame_no'].min(), df['frame_no'].max(), df, channel, f)
         
 if __name__ == "__main__":
     main()

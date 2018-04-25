@@ -76,3 +76,16 @@ def k_means_clust(data,num_clust,num_iter,w=5):
             except:
                 continue
     return centroids
+
+def match_template(seq, centroids, w):
+    min_dist = float('inf')
+    closest_clust_ind = None
+    closest_clust_arr = None
+    for c_ind,j in enumerate(centroids):
+        if LB_Keogh(seq,j,w)<min_dist:
+            cur_dist = DTWDistance(seq,j,w)
+            if cur_dist<min_dist:
+                min_dist = cur_dist
+                closest_clust_ind = c_ind
+                closest_clust_arr = j
+    return closest_clust_ind, closest_clust_arr

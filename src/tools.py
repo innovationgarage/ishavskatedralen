@@ -70,7 +70,7 @@ def get_filters(args):
         },
         'all': {
             'lower': np.array([0, args.lower_s, args.lower_v]),
-            'upper': np.array([120 - args.blue, 255, 255])
+            'upper': np.array([180, 255, 255])
         }        
     }
     return filters
@@ -93,7 +93,7 @@ def split_frame(frame_bgr, shape):
             frames.append(frame_bgr[i*w:(i+1)*w, j*h:(j+1)*h])
     return frames
 
-def img2seq(frame_rgb, shape):
+def img2seq(frame_rgb, shape, args):
     split_frames = split_frame(frame_rgb, shape)
     r = np.zeros((shape[0]*shape[1]))
     g = np.zeros((shape[0]*shape[1]))
@@ -105,20 +105,16 @@ def img2seq(frame_rgb, shape):
     r = r.reshape(shape)
     g = g.reshape(shape)
     b = b.reshape(shape)
-    col_seq = []    
+    seq = []    
     for row in range(shape[0]):
-#        rgb = np.uint8([[[np.median(r[row,:]), g[row,:].sum(), np.median(b[row,:])]]])[0][0]
-#        rgb = np.uint8([[[np.sum(r[row,:]), np.sum(g[row,:]), np.sum(b[row,:])]]])[0][0]
-        rgb = np.uint8([[[np.median(r[row,:]), np.median(g[row,:]), np.median(b[row,:])]]])[0][0]
-#        rgb = np.uint8([[[np.mean(r[row,:]), np.mean(g[row,:]), np.mean(b[row,:])]]])[0][0]                
+        if args.boost_green:
+            rgb = np.uint8([[[np.median(r[row,:]), g[row,:].sum(), np.median(b[row,:])]]])[0][0]
+        else:
+            rgb = np.uint8([[[np.median(r[row,:]), np.median(g[row,:]), np.median(b[row,:])]]])[0][0]
+
         for e in rgb:
-            col_seq.append(e)
-    row_seq = []
-    for col in range(shape[0]):
-        rgb = np.uint8([[[np.median(r[:,col]), np.median(g[:,col]), np.median(b[:,col])]]])[0][0]
-        for e in rgb:
-            row_seq.append(e)
-    return col_seq, row_seq
+            seq.append(e)
+    return seq
     
 def color_scale(col, df, inplace=True):
     if not inplace:
@@ -145,10 +141,19 @@ def minmax_scale(col, df, inplace=True):
 def write_sequences(frame_start, frame_stop, data, channel, outpath):
     Channelmax = 0
     for i in range(frame_start, frame_stop):
-        with open(outpath, 'w+') as f:
+        with open(outpath, 'r+') as f:
             a = data['{}_seq'.format(channel)].values[i]
             if not all([ v == 0 for v in a ]):
-#                print('{} {} {} {} {} {} {} {} {} {} {}'.format(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10]))
                 f.write('{} {} {} {} {} {} {} {} {} {} {}'.format(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10]))
             Channelmax = max(Channelmax, max(data['{}_seq'.format(channel)].values[i]))
     return Channelmax
+
+def write_sequences(frame_start, frame_stop, data, channel, f):
+    for i in range(frame_start, frame_stop):
+        a = data['{}_seq'.format(channel)].values[i]
+        if not all([ v == 0 for v in a ]):
+            f.write('{} {} {} {} {} {} {} {} {} {} {}\n'.format(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10]))
+
+def load_templates(filepath):
+    return np.genfromtxt(filepath, delimiter=' ', dtype='int')
+            
