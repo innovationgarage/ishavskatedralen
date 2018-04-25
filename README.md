@@ -36,7 +36,7 @@ Downloading test videos from [here](https://data-portal.phys.ucalgary.ca/auroram
   	python src/seq2template.py --help
 
 
-## Live video to light(template replacing)
+## Live video to light (with template replacements)
 
    	python src/vid2template.py --use_template True
 

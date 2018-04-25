@@ -1,3 +1,4 @@
+#similarity calculation and clustering functions from https://github.com/alexminnaar/time-series-classification-and-clustering
 from math import *
 import pandas as pd
 import numpy as np
