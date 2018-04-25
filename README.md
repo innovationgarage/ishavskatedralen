@@ -28,8 +28,13 @@ Downloading test videos from [here](https://data-portal.phys.ucalgary.ca/auroram
   * saves all non-zero sequences (per channel) for template generation in **sequences/**
   
 ## Generate templates from sequences
+   
+   	python src/seq2template.py --color g --n_cluster 250
 
-   	python src/seq2template.py 20180421 g 250
+- Check out the available arguments:
+
+  	python src/seq2template.py --help
+
 
 ## Live video to light(template replacing)
 

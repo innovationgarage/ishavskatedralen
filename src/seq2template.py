@@ -3,40 +3,45 @@ import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
 import random
-from clustering_tools import *
-import sys
+import clustering_tools
+import argparse
+import os
 
-date = sys.argv[1]
-color = sys.argv[2]
-num_clust = int(sys.argv[3])
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--src', type=str, default='sequences/', help='Path to the sequences (single file name or directory of files) to use for clustering')
+    parser.add_argument('--dst', type=str, default='templates/', help='Path to the templates (dir)')
+    parser.add_argument('--color', type=str, default='g', help='Which color channel to use? (r/g/b)')
+    parser.add_argument('--n_cluster', type=int, default=25, help='How many templates do you wish to have')
+    parser.add_argument('--n_iter', type=int, default=10, help='How many iterations in clustering?')
+    parser.add_argument('--window', type=int, default=11, help='Window size used in calculating similarity between sequences')
 
-# vid1 = np.genfromtxt('datasets/20180406.csv', delimiter=' ')
-# vid2 = np.genfromtxt('datasets/20180420.csv', delimiter=' ')
-# vid3 = np.genfromtxt('datasets/20180420.csv', delimiter=' ')
-# vid4 = np.genfromtxt('datasets/20180412.csv', delimiter=' ')
-# vid5 = np.genfromtxt('datasets/20180422.csv', delimiter=' ')
-# vid6 = np.genfromtxt('datasets/20180321.csv', delimiter=' ')
+    parser.set_defaults()
+    args = parser.parse_args()
 
-# data = np.vstack((vid1[:,:],vid2[:,:],vid3[:,:],vid4[:,:],vid5[:,:],vid6[:,:]))
-
-data = np.genfromtxt('sequences/auroramaxHD_{}_480p_{}.csv'.format(date, color), delimiter=' ')
-
-num_iter = 10
-w = 1
-
-centroids = k_means_clust(data,num_clust,num_iter,w)
-
-fig, axs = plt.subplots(ceil(num_clust/4), 4, sharex=True, sharey=True)
-axs = axs.flatten()
-
-with open('templates/auroramaxHD_{}_480p_{}.csv'.format(date, color), 'w+') as f:
-    for c in centroids:
-        for j in c:
-            f.write('{} '.format(int(round(j,0))))
-        f.write('\n')
-
-for i in range(num_clust):
-    axs[i].plot(centroids[i])
-    axs[i].set_title('{}'.format(ceil(max(centroids[i]))))
+    if os.path.isdir(args.src):
+        for seq_file in os.listdir(args.src):
+            filename, file_extension = os.path.splitext(seq_file)
+            if filename.split('_')[-1] == args.color:
+                i = 0
+                print(seq_file)
+                if i == 0:
+                    data = np.genfromtxt(os.path.join(args.src, seq_file), delimiter=' ')
+                else:
+                    vid = np.genfromtxt(os.path.join(args.src, seq_file), delimiter=' ')
+                    data = np.vstack((data, vid))
+                i += 1
+    elif os.path.isfile(args.src):
+        data = np.genfromtxt(args.src, delimiter=' ')
         
-plt.show()
+    centroids = clustering_tools.k_means_clust(data, args.n_cluster, args.n_iter, args.window)
+
+    with open(os.path.join(args.dst, 'template_{}.csv'.format(args.color)), 'w+') as f:
+        for c in centroids:
+            for j in c:
+                f.write('{} '.format(int(round(j,0))))
+            f.write('\n')
+
+if __name__ == "__main__":
+    main()
+            
