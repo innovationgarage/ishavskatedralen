@@ -10,6 +10,7 @@ import tools
 import clustering_tools
 import glob
 from datetime import datetime
+import subprocess
 
 def main():
     parser = argparse.ArgumentParser()
@@ -48,13 +49,14 @@ def main():
     os.makedirs(args.dstpath, exist_ok=True)
         
     # make sure there is a new history file for each day
-    history = os.path.join(args.dstpath, '{}.csv'.format(str(datetime.now().date())))
+    history = os.path.join(args.dstpath, '{}'.format(str(datetime.now().date())))
     if not os.path.isfile(history):
-        open(history, 'w+')
+        open(history, 'wb')
 
-    live = os.path.join(args.dstpath, 'live')        
+    live = os.path.join(args.dstpath, 'live')
+
     if not os.path.isfile(live):
-        open(live, 'w+')
+        open(live, 'wb')
         
     # find the latest input frame added to srcpath
     list_of_files = glob.glob(os.path.join(args.srcpath, '*'))
@@ -93,9 +95,9 @@ def main():
     res_g_bgr = cv2.cvtColor(res_g, cv2.COLOR_HSV2BGR)
     res_b_bgr = cv2.cvtColor(res_b, cv2.COLOR_HSV2BGR)
     res_all_bgr = cv2.cvtColor(res_all, cv2.COLOR_HSV2BGR)
-        
-    with open(live, 'r+') as f_live:
-        with open(history, 'a+') as f_history:
+
+    with open(live, 'wb') as f_live:
+        with open(history, 'ab') as f_history:
             if args.boost_green:
                 seq_rgb = tools.img2seq(res_g_rgb, shape, args)
             else:
@@ -110,18 +112,28 @@ def main():
                     seq_dict[channel]['original'], templates[channel], args.window
                 )
                 temp_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['temp_seq']
-                f_live.write('{}\n'.format(seq_dict[channel]['temp_idx']))
-                f_history.write('{} '.format(seq_dict[channel]['temp_idx']))
+                single_byte = seq_dict[channel]['temp_idx'].to_bytes(1, byteorder='little', signed=False)
+                print(single_byte)
+                f_history.write(single_byte)
+                f_live.write(single_byte)
 
-            f_history.write('\n')
+            print('\n')
 
-#    print([seq_dict[x]['temp_idx'] for x in channels])
+    # update the remote file
+    rsynccmd = "rsync --progress -e 'ssh -p  31338' outputs/live root@wiki.innovationgarage.no:/var/www/auroreal/status"
+    rsyncproc = subprocess.Popen(rsynccmd,
+                                 shell=True,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 )
+    
+    # print([seq_dict[x]['temp_idx'] for x in channels])
         
-    cv2.imshow("BGR", frame_bgr)
-    if args.boost_green:
-        cv2.imshow("res G", res_g_bgr)
-    else:
-        cv2.imshow("res all", res_all_bgr)
+    # cv2.imshow("BGR", frame_bgr)
+    # if args.boost_green:
+    #     cv2.imshow("res G", res_g_bgr)
+    # else:
+    #     cv2.imshow("res all", res_all_bgr)
 
 if __name__ == "__main__":
     while True:
