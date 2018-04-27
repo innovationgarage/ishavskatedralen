@@ -139,7 +139,7 @@ class Downloader : public Task {
     void setup() {
 
       WiFi.mode(WIFI_STA);
-      wifiMulti.addAP("Dualog-Guest", "Duatos14");
+      wifiMulti.addAP(WIFISSID, WIFIPASS);
 
       Serial.println();
       Serial.print("Wait for WiFi... ");

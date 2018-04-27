@@ -5,6 +5,7 @@
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 #include "templates.h"
+#include "credentials.h"
 
 #define STRIP_PIN D1
 
