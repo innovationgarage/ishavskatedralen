@@ -32,7 +32,7 @@ def main(seq, w=5):
     plt.legend()
     plt.show()
 
-alts = load_templates('datasets/20180406g.csv')
+alts = load_templates('datasets/20180421g.csv')
 for seq in alts:
     main(seq, w=11)
 

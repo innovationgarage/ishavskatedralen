@@ -26,7 +26,6 @@ def main():
     parser.add_argument('--lower_v', type=float, default=0, help='Lower limit of the V channel')
     parser.add_argument('--nled', type=int, default=11, help='How many LEDs do you have in your cathedral?')
     parser.add_argument('--boost_green', type=bool, default=False, help='Should I boost the green color?')
-    parser.add_argument('--use_template', type=bool, default=True, help='Should I use templates to replace the actual sequences?')    
     parser.add_argument('--window', type=int, default=11, help='Window size used in template matching')
     
     parser.set_defaults()
@@ -68,8 +67,10 @@ def main():
     # Start timer
     timer = cv2.getTickCount()
         
-    frame_bgr = frame_original[0:500, 180:680] # specific to this dataset
-    frame_bgr = frame_bgr[50:450, 50:450] # specific to this dataset
+    # frame_bgr = frame_original[0:500, 180:680] # specific to this dataset
+    # frame_bgr = frame_bgr[50:450, 50:450] # specific to this dataset
+
+    frame_bgr = frame_original
     
     frame_hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
     frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
@@ -111,13 +112,15 @@ def main():
                 seq_dict[channel]['temp_idx'], seq_dict[channel]['temp_seq'] = clustering_tools.match_template(
                     seq_dict[channel]['original'], templates[channel], args.window
                 )
+                # print(temp_seq)
+                # print(seq_dict[channel]['temp_seq'])
+                # print([j for j in range(len(seq_rgb)) if j%3==i])
+                
                 temp_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['temp_seq']
+
                 single_byte = seq_dict[channel]['temp_idx'].to_bytes(1, byteorder='little', signed=False)
-                print(single_byte)
                 f_history.write(single_byte)
                 f_live.write(single_byte)
-
-            print('\n')
 
     # update the remote file
     rsynccmd = "rsync --progress -e 'ssh -p  31338' outputs/live root@wiki.innovationgarage.no:/var/www/auroreal/status"
@@ -129,16 +132,16 @@ def main():
     
     # print([seq_dict[x]['temp_idx'] for x in channels])
         
-    # cv2.imshow("BGR", frame_bgr)
-    # if args.boost_green:
-    #     cv2.imshow("res G", res_g_bgr)
-    # else:
-    #     cv2.imshow("res all", res_all_bgr)
+    cv2.imshow("BGR", frame_bgr)
+    if args.boost_green:
+        cv2.imshow("res G", res_g_bgr)
+    else:
+        cv2.imshow("res all", res_all_bgr)
 
 if __name__ == "__main__":
     while True:
         main()
-        time.sleep(1)
+        time.sleep(2)
         
         # Exit if ESC pressed
         k = cv2.waitKey(1) & 0xff

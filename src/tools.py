@@ -110,7 +110,8 @@ def img2seq(frame_rgb, shape, args):
         if args.boost_green:
             rgb = np.uint8([[[np.median(r[row,:]), g[row,:].sum(), np.median(b[row,:])]]])[0][0]
         else:
-            rgb = np.uint8([[[np.median(r[row,:]), np.median(g[row,:]), np.median(b[row,:])]]])[0][0]
+#            rgb = np.uint8([[[np.median(r[row,:]), np.median(g[row,:]), np.median(b[row,:])]]])[0][0]
+            rgb = np.uint8([[[np.median(r[row,:]), np.max(g[row,:]), np.median(b[row,:])]]])[0][0]
 
         for e in rgb:
             seq.append(e)

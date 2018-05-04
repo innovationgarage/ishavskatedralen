@@ -4,6 +4,7 @@ import os
 import time
 import argparse
 import tools
+import sys
 
 def main():
     parser = argparse.ArgumentParser()
@@ -39,7 +40,7 @@ def main():
         cv2.imwrite(os.path.join(args.srcpath, 'frame.jpg'), frame_original)        
         print('frame {}'.format(frame_no))
         frame_no += 1
-        time.sleep(0.5)
+        time.sleep(2)
 
 if __name__ == "__main__":
     main()

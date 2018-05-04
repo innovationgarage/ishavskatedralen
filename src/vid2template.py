@@ -53,8 +53,9 @@ def main():
     templates = {}
 
     for channel in channels:
-        templates[channel] = tools.load_templates(os.path.join(args.temppath, 'template_{}.csv'.format(channel)))
-    
+        if args.use_template:
+            templates[channel] = tools.load_templates(os.path.join(args.temppath, 'template_{}.csv'.format(channel)))
+
     original_video_path = tools.download_video(args.year, args.month, args.day, args.vidpath)
     ovpath, vname = os.path.split(original_video_path)
 
@@ -119,7 +120,7 @@ def main():
                     seq_rgb = tools.img2seq(res_all_rgb, shape, args)
                 if args.use_template:
                     seq_dict = {}
-                    temp_seq = np.zeros((args.nled*3,), dtype='int')
+                    temp_seq = np.zeros((args.nled*3,), dtype='int')                    
                     for i, channel in enumerate(['r', 'g', 'b']):
                         seq_dict[channel] = {}
                         seq_dict[channel]['original'] = [seq_rgb[j] for j in range(len(seq_rgb)) if j%3==i]
@@ -127,9 +128,8 @@ def main():
                             seq_dict[channel]['original'], templates[channel], args.window
                         )
                         temp_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['temp_seq']
-                        #                            print(channel, seq_dict[channel]['temp_idx'])
-                        temp_seq = list(temp_seq)
-                        values = bytearray(temp_seq)
+
+                        values = bytearray(list(temp_seq))
                 else:
                     values = bytearray(seq_rgb)
                 ser.write(values)
