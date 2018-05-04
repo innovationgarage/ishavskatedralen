@@ -18,7 +18,7 @@ Downloading test videos from [here](https://data-portal.phys.ucalgary.ca/auroram
 
 - Check out the available arguments:
 
-  	python src/vid2template.py --help
+  	      python src/vid2template.py --help
 
 - What vid2seq.py does:
   * downloads the video for that date
