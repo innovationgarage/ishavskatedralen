@@ -67,10 +67,10 @@ def main():
     # Start timer
     timer = cv2.getTickCount()
         
-    # frame_bgr = frame_original[0:500, 180:680] # specific to this dataset
-    # frame_bgr = frame_bgr[50:450, 50:450] # specific to this dataset
+    frame_bgr = frame_original[0:500, 180:680] # specific to this dataset
+    frame_bgr = frame_bgr[50:450, 50:450] # specific to this dataset
 
-    frame_bgr = frame_original
+#    frame_bgr = frame_original
     
     frame_hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
     frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
@@ -112,15 +112,19 @@ def main():
                 seq_dict[channel]['temp_idx'], seq_dict[channel]['temp_seq'] = clustering_tools.match_template(
                     seq_dict[channel]['original'], templates[channel], args.window
                 )
+                seq_dict[channel]['temp_idx'] += 1
+                print(channel, seq_dict[channel]['temp_idx'])
                 # print(temp_seq)
                 # print(seq_dict[channel]['temp_seq'])
                 # print([j for j in range(len(seq_rgb)) if j%3==i])
                 
                 temp_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['temp_seq']
-
+                print(channel, seq_dict[channel]['temp_seq'])
                 single_byte = seq_dict[channel]['temp_idx'].to_bytes(1, byteorder='little', signed=False)
                 f_history.write(single_byte)
                 f_live.write(single_byte)
+            print(list(temp_seq))
+            print('\n')
 
     # update the remote file
     rsynccmd = "rsync --progress -e 'ssh -p  31338' outputs/live root@wiki.innovationgarage.no:/var/www/auroreal/status"
@@ -141,7 +145,7 @@ def main():
 if __name__ == "__main__":
     while True:
         main()
-        time.sleep(2)
+        time.sleep(1)
         
         # Exit if ESC pressed
         k = cv2.waitKey(1) & 0xff

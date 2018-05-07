@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--src', type=str, default="video", help='Source of the images (options: "video" for video frames, [impath] to use the last image added to impath as input)')
-    parser.add_argument('--dst', type=str, default="serial", help='Destination of the generated sequences (options: "serial" for the local serial port, [dstpath] to add the template number for each channel to the end of the dstpath file)')    
+    parser.add_argument('--dst', type=str, default="serial", help='Destination of the generated sequences (options: "serial" for the local serial port, [dstpath] to add the template number for each channel to the end of the dstpath file)')
     
     parser.add_argument('--year', type=int, default=2018, help='Date of the video (year)')
     parser.add_argument('--month', type=int, default=4, help='Date of the video (month)')
@@ -73,9 +73,13 @@ def main():
         cols.append('g{}'.format(i))
         cols.append('b{}'.format(i))    
     df = pd.DataFrame(columns = cols)
-        
+
+    history = args.dst
+    open(history, 'wb')
+    
     frame_no = 0
     while True:
+#    while frame_no<20:
         ok, frame_original = video.read()
         if not ok:
             break
@@ -128,13 +132,39 @@ def main():
                             seq_dict[channel]['original'], templates[channel], args.window
                         )
                         temp_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['temp_seq']
-
+                        print(channel, seq_dict[channel]['temp_idx'])
                         values = bytearray(list(temp_seq))
+                    print('\n')
                 else:
                     values = bytearray(seq_rgb)
+
+                print(list(temp_seq))
+#                ser.write(bytearray([0,255,0, 255,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0]))
                 ser.write(values)
         elif os.path.isfile(args.dst):
-            pass
+            with open(history, 'ab') as f_history:
+                if args.boost_green:
+                    seq_rgb = tools.img2seq(res_g_rgb, shape, args)
+                else:
+                    seq_rgb = tools.img2seq(res_all_rgb, shape, args)
+                if args.use_template:
+                    seq_dict = {}
+                    temp_seq = np.zeros((args.nled*3,), dtype='int')                    
+                    for i, channel in enumerate(['r', 'g', 'b']):
+                        seq_dict[channel] = {}
+                        seq_dict[channel]['original'] = [seq_rgb[j] for j in range(len(seq_rgb)) if j%3==i]
+                        seq_dict[channel]['temp_idx'], seq_dict[channel]['temp_seq'] = clustering_tools.match_template(
+                            seq_dict[channel]['original'], templates[channel], args.window
+                        )
+                        temp_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['temp_seq']
+
+                        single_byte = seq_dict[channel]['temp_idx'].to_bytes(1, byteorder='little', signed=False)
+                        f_history.write(single_byte)
+                        
+                        print(channel, seq_dict[channel]['temp_idx'])
+                    print(frame_no)
+                else:
+                    pass
 
         # write all measurements to a dataframe
         df_line = [vname, frame_no, flux_r, flux_g, flux_b, area_r, area_g, area_b]

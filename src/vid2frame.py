@@ -33,6 +33,7 @@ def main():
         
     frame_no = 0
     while True:
+#    while frame_no<21:        
         ok, frame_original = video.read()
         if not ok:
             break
@@ -40,7 +41,7 @@ def main():
         cv2.imwrite(os.path.join(args.srcpath, 'frame.jpg'), frame_original)        
         print('frame {}'.format(frame_no))
         frame_no += 1
-        time.sleep(2)
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
