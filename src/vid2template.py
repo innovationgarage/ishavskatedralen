@@ -94,6 +94,10 @@ def main():
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         
         frame_no += 1
+        # if frame_no%50==1:
+        #     history = os.path.join(args.dst, str(frame_no-1))
+        #     open(history, 'wb')
+
         shape = (nx, ny)
         
         # Calculate Frames per second (FPS)
@@ -137,11 +141,10 @@ def main():
                     print('\n')
                 else:
                     values = bytearray(seq_rgb)
-
-                print(list(temp_seq))
 #                ser.write(bytearray([0,255,0, 255,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0]))
                 ser.write(values)
         elif os.path.isfile(args.dst):
+#        elif os.path.isdir(args.dst):
             with open(history, 'ab') as f_history:
                 if args.boost_green:
                     seq_rgb = tools.img2seq(res_g_rgb, shape, args)

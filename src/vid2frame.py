@@ -37,8 +37,9 @@ def main():
         ok, frame_original = video.read()
         if not ok:
             break
-#        cv2.imwrite(os.path.join(args.srcpath, '{}.jpg'.format(frame_no)), frame_original)
-        cv2.imwrite(os.path.join(args.srcpath, 'frame.jpg'), frame_original)        
+        if frame_no%50==1:
+            cv2.imwrite(os.path.join(args.srcpath, '{}.jpg'.format(frame_no-1)), frame_original)
+#        cv2.imwrite(os.path.join(args.srcpath, 'frame.jpg'), frame_original)        
         print('frame {}'.format(frame_no))
         frame_no += 1
         time.sleep(1)
