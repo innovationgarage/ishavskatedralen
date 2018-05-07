@@ -18,9 +18,9 @@ Downloading test videos from [here](https://data-portal.phys.ucalgary.ca/auroram
 
 - Check out the available arguments:
 
-  	      python src/vid2template.py --help
+      python src/vid2template.py --help
 
-- What vid2seq.py does:
+- What vid2template.py does:
   * downloads the video for that date
   * generates sequences
   * sends a stream of light to a locally-connected cathedral
@@ -28,12 +28,12 @@ Downloading test videos from [here](https://data-portal.phys.ucalgary.ca/auroram
   * saves all non-zero sequences (per channel) for template generation in **sequences/**
   
 ## Generate templates from sequences
-   
-   	python src/seq2template.py --color g --n_cluster 250
+
+      python src/seq2template.py --color g --n_cluster 250
 
 - Check out the available arguments:
 
-  	python src/seq2template.py --help
+      python src/seq2template.py --help
 
 
 ## Live video to light (with template replacements)
