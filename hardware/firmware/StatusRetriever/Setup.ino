@@ -6,18 +6,21 @@ void flashAll(uint32_t color) {
   strip.show();
 }
 
+void clearEverything()
+{
+    // Initialize
+  memset(newColors, 0, sizeof(newColors));
+  memset(currentColors, 0, sizeof(currentColors));
+  memset(currentEffects, 0, sizeof(currentEffects));
+}
+
 void setup() {
 
   strip.begin();
+  strip.setBrightness(255);
   strip.show();
 
-  for (int i = 0; i < 120; i++) {
-    flashAll(strip.Color((i % 20) * 2, i % 30, i % 60));
-    delay(10);
-  }
-
-  memset(newColors, 0, sizeof(newColors));
-  memset(currentColors, 0, sizeof(currentColors));
+  clearEverything();
 
   Serial.begin(115200);
   while (!Serial) {

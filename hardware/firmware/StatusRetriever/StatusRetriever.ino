@@ -1,19 +1,25 @@
+#include <PersWiFiManager.h>
+#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266SSDP.h>
+#include <ESP8266WebServer.h>
+#include <DNSServer.h>
+#include <FS.h>
 #include <Scheduler.h>
 #include <Task.h>
-#include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
+
 #include "templates.h"
 #include "credentials.h"
 
-#define STRIP_PIN D1
+#define STRIP_PIN D7
 
 static const int CHECK_DELAY = 1000,NUM_LEDS = 11;
 double currentColors[NUM_LEDS * 3];
-byte newColors[(NUM_LEDS + 1) * 3];
-double changeSpeed = 0.001;
-long nextChange = 0;
+double currentEffects[NUM_LEDS * 3];
+double newColors[NUM_LEDS * 3];
 
 ESP8266WiFiMulti wifiMulti;
 
