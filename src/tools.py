@@ -157,4 +157,57 @@ def write_sequences(frame_start, frame_stop, data, channel, f):
 
 def load_templates(filepath):
     return np.genfromtxt(filepath, delimiter=' ', dtype='int')
-            
+
+import matplotlib.pyplot as plt
+from numpy import exp, loadtxt, pi, sqrt
+from lmfit import CompositeModel, Model
+from lmfit.models import *
+
+def gaussian(x, amp, cen, wid):
+    """1-d gaussian: gaussian(x, amp, cen, wid)"""
+    return (amp / (sqrt(2*pi) * wid)) * exp(-(x-cen)**2 / (2*wid**2))
+
+def fit_gaussian(seq, *params, report=False):
+    x = np.arange(len(seq))
+    y = seq
+    amp, cen, wid = params
+    gmodel = Model(gaussian)
+    # limit the amplitude to be in 0-256
+    gmodel.set_param_hint('amp', min=0)
+    gmodel.set_param_hint('amp', max=256)
+    result = gmodel.fit(y, x=x, amp=amp, cen=cen, wid=wid)
+    if result.redchi>=1e3:
+#    if report:
+        plt.figure()
+        plt.plot(x, y, 'bo')
+#        plt.plot(x, result.init_fit, 'k--')
+        plt.plot(x, np.ceil(result.best_fit), 'r-')
+        plt.title('chi2: {0:.2e} - red_chi2: {0:.2e}'.format(result.chisqr, result.redchi))
+        plt.show()
+    return result
+
+def fit_composit(seq, *params, report=False):
+    x = np.arange(len(seq))
+    y = seq
+    amp, cen, wid = params
+    cmodel = CompositeModel(Model(gaussian), Model(LognormalModel), ExponentialGaussianModel)
+    pars = cmodel.make_params(amplitude=amp, center=cen, sigma=wid, mid=cen)
+    # 'mid' and 'center' should be completely correlated, and 'mid' is
+    # used as an integer index, so a very poor fit variable:
+    pars['mid'].vary = False
+    # fit this model to data array y
+    result = cmodel.fit(y, params=pars, x=x)
+    # limit the amplitude to be in 0-256
+    cmodel.set_param_hint('amp', min=0)
+    cmodel.set_param_hint('amp', max=256)    
+    result = gmodel.fit(y, x=x, amp=amp, cen=cen, wid=wid)
+    if result.redchi>=1e3:
+#    if report:
+        plt.figure()
+        plt.plot(x, y, 'bo')
+#        plt.plot(x, result.init_fit, 'k--')
+        plt.plot(x, np.ceil(result.best_fit), 'r-')
+        plt.title('chi2: {0:.2e} - red_chi2: {0:.2e}'.format(result.chisqr, result.redchi))
+        plt.show()
+    return result
+

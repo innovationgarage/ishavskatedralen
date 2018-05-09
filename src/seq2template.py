@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--color', type=str, default='g', help='Which color channel to use? (r/g/b)')
     parser.add_argument('--n_cluster', type=int, default=25, help='How many templates do you wish to have')
     parser.add_argument('--n_iter', type=int, default=10, help='How many iterations in clustering?')
-    parser.add_argument('--window', type=int, default=11, help='Window size used in calculating similarity between sequences')
+    parser.add_argument('--window', type=int, default=2, help='Window size used in calculating similarity between sequences')
 
     parser.set_defaults()
     args = parser.parse_args()
