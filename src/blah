@@ -1,0 +1,19 @@
+11
+channel: r, original: [21, 35, 39, 52, 68, 100, 71, 55, 42, 17, 22]
+channel: r, template: [16 17 18 18 18 18 18 17 15 15 11]
+212
+channel: g, original: [198, 179, 179, 213, 98, 145, 122, 56, 248, 81, 59]
+channel: g, template: [184 143 130 134  54  50   7   0   0   0   0]
+4
+channel: b, original: [27, 33, 34, 24, 22, 22, 30, 36, 22, 17, 20]
+channel: b, template: [30 29 27 25 25 24 24 25 25 25 26]
+
+22
+channel: r, original: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+channel: r, template: [0 1 0 0 0 0 0 0 0 0 0]
+136
+channel: g, original: [0, 0, 0, 0, 103, 0, 0, 0, 0, 0, 0]
+channel: g, template: [  7 103 115  72  22   9   5   0   0   1   0]
+11
+channel: b, original: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+channel: b, template: [ 9  9 10 10 11 13 13 13 14 16 17]

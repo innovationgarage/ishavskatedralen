@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--nled', type=int, default=11, help='How many LEDs do you have in your cathedral?')
     parser.add_argument('--boost_green', type=bool, default=False, help='Should I boost the green color?')
     parser.add_argument('--use_template', type=bool, default=False, help='Should I use templates to replace the actual sequences?')    
-    parser.add_argument('--window', type=int, default=11, help='Window size used in template matching')
+    parser.add_argument('--window', type=int, default=2, help='Window size used in template matching')
     
     parser.set_defaults()
     args = parser.parse_args()
@@ -74,8 +74,8 @@ def main():
         cols.append('b{}'.format(i))    
     df = pd.DataFrame(columns = cols)
 
-    history = args.dst
-    open(history, 'wb')
+    # history = args.dst
+    # open(history, 'wb')
     
     frame_no = 0
     while True:
@@ -94,9 +94,11 @@ def main():
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         
         frame_no += 1
-        # if frame_no%50==1:
-        #     history = os.path.join(args.dst, str(frame_no-1))
-        #     open(history, 'wb')
+
+        if os.path.isdir(args.dst):
+            if frame_no%50==1:
+                history = os.path.join(args.dst, str(frame_no-1))
+                open(history, 'wb')
 
         shape = (nx, ny)
         
@@ -122,29 +124,46 @@ def main():
         
         if args.dst == 'serial':
             with serial.Serial(args.serial, 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE) as ser:
+                print(frame_no)
                 if args.boost_green:
                     seq_rgb = tools.img2seq(res_g_rgb, shape, args)
                 else:
                     seq_rgb = tools.img2seq(res_all_rgb, shape, args)
                 if args.use_template:
                     seq_dict = {}
-                    temp_seq = np.zeros((args.nled*3,), dtype='int')                    
+                    temp_seq = np.zeros((args.nled*3,), dtype='int')
+                    original_seq = np.zeros((args.nled*3,), dtype='int')
                     for i, channel in enumerate(['r', 'g', 'b']):
                         seq_dict[channel] = {}
                         seq_dict[channel]['original'] = [seq_rgb[j] for j in range(len(seq_rgb)) if j%3==i]
+
+                        # clustered templates
                         seq_dict[channel]['temp_idx'], seq_dict[channel]['temp_seq'] = clustering_tools.match_template(
                             seq_dict[channel]['original'], templates[channel], args.window
                         )
+
+                        # # fitted gaussians
+                        # params = [255, 5, 1]
+                        # res = tools.fit_gaussian(seq_dict[channel]['original'], *params)
+                        # seq_dict[channel]['temp_seq'] = np.ceil(res.best_fit).astype('int')
+
                         temp_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['temp_seq']
-                        print(channel, seq_dict[channel]['temp_idx'])
-                        values = bytearray(list(temp_seq))
+                        original_seq[[j for j in range(len(seq_rgb)) if j%3==i]] = seq_dict[channel]['original']
+                        print(channel, seq_dict[channel]['original'])
+                        print(channel, seq_dict[channel]['temp_seq'])
+#                        values = bytearray(list(np.abs(original_seq-original_seq)))
+                    # print('ORIGINAL: {}'.format(original_seq))
+                    # print('TEMPLATE: {}'.format(temp_seq))
+                    print('DIFF: {}'.format((np.abs(temp_seq-original_seq))))
                     print('\n')
+
+                    values = bytearray(list(temp_seq))
                 else:
                     values = bytearray(seq_rgb)
 #                ser.write(bytearray([0,255,0, 255,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0]))
                 ser.write(values)
-        elif os.path.isfile(args.dst):
-#        elif os.path.isdir(args.dst):
+#        elif os.path.isfile(args.dst):
+        elif os.path.isdir(args.dst):
             with open(history, 'ab') as f_history:
                 if args.boost_green:
                     seq_rgb = tools.img2seq(res_g_rgb, shape, args)
@@ -164,8 +183,10 @@ def main():
                         single_byte = seq_dict[channel]['temp_idx'].to_bytes(1, byteorder='little', signed=False)
                         f_history.write(single_byte)
                         
-                        print(channel, seq_dict[channel]['temp_idx'])
+                        if frame_no%50==1:
+                            print(channel, seq_dict[channel]['temp_idx'])
                     print(frame_no)
+#                    print('\n')
                 else:
                     pass
 
