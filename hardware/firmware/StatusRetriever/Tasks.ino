@@ -1,7 +1,6 @@
-bool isConnected = false;
-
 void ParseMode(byte r, byte g, byte b)
 {
+  isConnected = true;
   for (int i = 0; i < NUM_LEDS; i++)
   {
     //strip.setPixelColor(i, 0, templates[t][i], 0);
@@ -52,27 +51,6 @@ class CheckSerial : public Task {
         ParseMode(Serial.read(), Serial.read(), Serial.read());
     }
 } serial_task;
-
-/*class BlinkTask : public Task {
-  protected:
-    void setup() {
-      state = HIGH;
-
-      pinMode(2, OUTPUT);
-      pinMode(2, state);
-    }
-
-    void loop() {
-      state = state == HIGH ? LOW : HIGH;
-      pinMode(2, state);
-
-      delay(1000);
-    }
-
-  private:
-    uint8_t state;
-  } blink_task;
-*/
 
 // ***************************************************************
 // ***************************************************************
@@ -137,7 +115,21 @@ class Monitor : public Task {
     bool forward = false;
     long last = 0;
   public:
+    void setup() {
+
+      DEBUG_PRINT("Setting up server");
+      flashAll(255, 0, 0);
+      setupServer();
+
+      SPIFFS.remove("/booting.txt");
+
+      DEBUG_PRINT("Done. Connecting to wifi...");
+      //ConnectToWifi();
+    }
     void loop() {
+      dnsServer.processNextRequest();
+      server.handleClient();
+
       if (!isConnected)
       {
         for (int i = 0; i < NUM_LEDS; i++)
@@ -150,7 +142,7 @@ class Monitor : public Task {
             pos += forward ? 1 : -1;
             last = millis() + 100;
           }
-          currentColors[(i * 3) + 0] = i == pos ? 255 : 0;
+          currentColors[(i * 3) + 0] = i == pos ? (i == pos - 1 || i == pos + 1 ? 20 : 0) : 255;
           currentColors[(i * 3) + 1] = 0;
           currentColors[(i * 3) + 2] = 0;
         }
@@ -201,33 +193,9 @@ class Sparkler : public Task {
 // ***************************************************************
 class Downloader : public Task {
   protected:
-    void ConnectToWifi()
-    {
-      delay(1000 * 5);
-
-      WiFi.mode(WIFI_STA);
-      wifiMulti.addAP(WIFISSID, WIFIPASS);
-
-      Serial.println();
-      Serial.print("Wait for WiFi... ");
-
-      while (wifiMulti.run() != WL_CONNECTED) {
-        Serial.print(".");
-        delay(500);
-      }
-
-      isConnected = true;
-      clearEverything();
-
-      Serial.println("");
-      Serial.println("WiFi connected");
-      Serial.println("IP address: ");
-      Serial.println(WiFi.localIP());
-
-      delay(500);
-    }
     void setup() {
-      ConnectToWifi();
+      //delay(1000 * 15);
+      //ConnectToWifi();
     }
 
     void loop() {
@@ -249,7 +217,6 @@ class Downloader : public Task {
 
             clearEverything();
             isConnected = false;
-            ConnectToWifi();
           }
         }
 

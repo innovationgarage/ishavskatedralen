@@ -10,17 +10,27 @@
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
-
+#include <EEPROM.h>
 #include "templates.h"
 #include "credentials.h"
 
 #define STRIP_PIN D7
 
+#define DEBUG_SERIAL //uncomment for Serial debugging statements
+
+#ifdef DEBUG_SERIAL
+#define DEBUG_BEGIN Serial.begin(115200)
+#define DEBUG_PRINT(x) Serial.println(x)
+#else
+#define DEBUG_PRINT(x)
+#define DEBUG_BEGIN
+#endif
+
 static const int CHECK_DELAY = 1000,NUM_LEDS = 11;
 double currentColors[NUM_LEDS * 3];
 double currentEffects[NUM_LEDS * 3];
 double newColors[NUM_LEDS * 3];
-
+bool isConnected = false;
 ESP8266WiFiMulti wifiMulti;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(
