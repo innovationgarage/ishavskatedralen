@@ -9,7 +9,7 @@ class Sparkler : public Task {
 
       if (millis() > nextChange)
       {
-        Serial.print("!");
+        //Serial.print("!");
         nextChange = millis() + random(speed - variance, speed + variance);
 
         // Modify some green/blue channels at random

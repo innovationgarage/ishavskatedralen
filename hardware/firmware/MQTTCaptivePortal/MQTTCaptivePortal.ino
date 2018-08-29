@@ -11,8 +11,9 @@
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 #include <EEPROM.h>
+#include <PubSubClient.h>
+#include "settings.h"
 
-#define STRIP_PIN D8
 
 #define DEBUG_SERIAL //uncomment for Serial debugging statements
 
@@ -24,7 +25,6 @@
 #define DEBUG_BEGIN
 #endif
 
-static const int CHECK_DELAY = 1000,NUM_LEDS = 11;
 double currentColors[NUM_LEDS * 3];
 double currentEffects[NUM_LEDS * 3];
 double newColors[NUM_LEDS * 3];

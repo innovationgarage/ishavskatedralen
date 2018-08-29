@@ -29,7 +29,7 @@ void setup() {
   //strip.show();
 
   clearEverything();
-    flashAll(128,0,0);
+  flashAll(128, 0, 0);
 
   Serial.begin(115200);
   while (!Serial) {
@@ -39,6 +39,5 @@ void setup() {
   // Tell the computer that we're ready for data
   Serial.println("INIT: OK");
 
-  // Run scheduler
   run();
 }

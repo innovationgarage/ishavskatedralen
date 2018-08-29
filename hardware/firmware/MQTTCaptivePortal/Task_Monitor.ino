@@ -11,9 +11,8 @@ class Monitor : public Task {
       setupServer();
 
       SPIFFS.remove("/booting.txt");
-
       DEBUG_PRINT("Done. Connecting to wifi...");
-      //ConnectToWifi();
+      ConnectToWifi();
     }
     void loop() {
       dnsServer.processNextRequest();
