@@ -1,0 +1,7 @@
+mqttServer = "SERVER"
+mqttUser = "USER"
+mqttPassword = "PASS"
+mqttPort = PORT
+
+mqttPublishTo = "cathedral/leds/set"
+mqttSubscribeTo = "cathedral/out"
