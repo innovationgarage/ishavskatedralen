@@ -7,3 +7,4 @@ hardware/firmware/StatusRetriever/credentials.h
 *.pyc
 hardware/firmware/MQTT/client/config.py
 hardware/firmware/MQTT/MQTTCaptivePortal/mqtt_settings.h
+src/config.py
