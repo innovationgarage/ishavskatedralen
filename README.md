@@ -2,6 +2,12 @@
 
 Downloading test videos from [here](https://data-portal.phys.ucalgary.ca/auroramax/movies)
 
+## Use MQTT client
+
+      python src/demoMQTT.py --boost_green True --year 2018 --month 4 --day 21
+      
+use the date you want!      
+      
 ## Getting started (Live video to light - no templates)
 - Connect the cathedral
 - Find out which serial port talks to the cathedral:
