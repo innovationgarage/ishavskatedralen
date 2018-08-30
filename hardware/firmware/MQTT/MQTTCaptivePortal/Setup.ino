@@ -15,21 +15,9 @@ void clearEverything()
 }
 
 void setup() {
-  //allows serving of files from SPIFFS
-  SPIFFS.begin();
-
-  if (SPIFFS.exists("/booting.txt"))
-    WiFi.disconnect();
-  else
-    SPIFFS.open("/booting.txt", "w");
-
   strip.begin();
   strip.setBrightness(255);
-
-  //strip.show();
-
   clearEverything();
-  flashAll(128, 0, 0);
 
   Serial.begin(115200);
   while (!Serial) {
@@ -39,5 +27,14 @@ void setup() {
   // Tell the computer that we're ready for data
   Serial.println("INIT: OK");
 
+  WiFiManager wifiManager;
+
+  WiFiManagerParameter custom_text("<p>This is just a text paragraph</p>");
+  wifiManager.addParameter(&custom_text);
+
+  flashAll(255, 90, 0);
+  String ssid = "ArcticCathedral-" + String(ESP.getChipId());
+  wifiManager.autoConnect(ssid.c_str());
+  
   run();
 }

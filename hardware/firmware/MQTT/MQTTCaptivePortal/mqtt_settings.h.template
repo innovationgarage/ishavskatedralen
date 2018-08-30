@@ -1,0 +1,9 @@
+const char* mqttServer = "SERVER";
+const char* mqttUser = "USER";
+const char* mqttPassword = "PASSWORD";
+const char* mqttDevice = "DEVICENAME";
+const int mqttPort = PORT;
+
+const char* mqttSubscribeTo = "cathedral/leds/set";
+const char* mqttPublishTo = "cathedral/out";
+

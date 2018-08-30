@@ -1,19 +1,15 @@
-#include <PersWiFiManager.h>
-#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266SSDP.h>
+#include <WiFiManager.h> 
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 #include <FS.h>
 #include <Scheduler.h>
 #include <Task.h>
-#include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 #include <EEPROM.h>
 #include <PubSubClient.h>
 #include "settings.h"
-
 
 #define DEBUG_SERIAL //uncomment for Serial debugging statements
 
@@ -28,8 +24,6 @@
 double currentColors[NUM_LEDS * 3];
 double currentEffects[NUM_LEDS * 3];
 double newColors[NUM_LEDS * 3];
-bool isConnected = false;
-ESP8266WiFiMulti wifiMulti;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(
   NUM_LEDS,             // Number of pixels in strip

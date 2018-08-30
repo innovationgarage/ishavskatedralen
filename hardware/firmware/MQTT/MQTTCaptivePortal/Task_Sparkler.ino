@@ -1,16 +1,15 @@
 class Sparkler : public Task {
   private:
-    long nextChange = 0;
+    //long nextChange = 0;
     const int speed = 100, variance = 20, chance_to_be_selected = 5;
     const int green_variance = 10, blue_variance = 2, variance_divider = 2, gray_reduction = 20;
 
   public:
     void loop() {
-
-      if (millis() > nextChange)
+      //if (millis() > nextChange)
       {
         //Serial.print("!");
-        nextChange = millis() + random(speed - variance, speed + variance);
+        //nextChange = millis() + random(speed - variance, speed + variance);
 
         // Modify some green/blue channels at random
         for (int i = -1; i < NUM_LEDS; i++)
@@ -31,6 +30,7 @@ class Sparkler : public Task {
             currentEffects[B] = random(-blue_variance, blue_variance) * (gray / gray_reduction) / variance_divider; // Blue channel
           }
         }
+        delay(random(speed - variance, speed + variance));
       }
     }
 } sparkler_task;
