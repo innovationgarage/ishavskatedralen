@@ -12,7 +12,7 @@ class Sparkler : public Task {
         //nextChange = millis() + random(speed - variance, speed + variance);
 
         // Modify some green/blue channels at random
-        for (int i = -1; i < NUM_LEDS; i++)
+        for (int i = 0; i < NUM_LEDS; i++)
         {
           if (random(0, chance_to_be_selected) == 0)
           {
