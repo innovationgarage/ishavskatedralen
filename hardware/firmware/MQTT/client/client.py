@@ -24,9 +24,10 @@ leds_allgray = bytearray([20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
 while True:
     client.publish(c.mqttPublishTo, leds_blueandred)
     time.sleep(2)
-    client.publish(c.mqttPublishTo, leds_allwhite)
-    time.sleep(4)
-    client.publish(c.mqttPublishTo, leds_blueandred)
-    time.sleep(2)
-    client.publish(c.mqttPublishTo, leds_allgray)
-    time.sleep(10)
+
+client.publish(c.mqttPublishTo, leds_allwhite)
+time.sleep(4)
+client.publish(c.mqttPublishTo, leds_blueandred)
+time.sleep(2)
+client.publish(c.mqttPublishTo, leds_allgray)
+time.sleep(10)

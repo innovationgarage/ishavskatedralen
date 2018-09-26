@@ -1,8 +1,8 @@
 class Sparkler : public Task {
   private:
     //long nextChange = 0;
-    const int speed = 100, variance = 20, chance_to_be_selected = 5;
-    const int green_variance = 10, blue_variance = 2, variance_divider = 2, gray_reduction = 20;
+    const int speed = 100, variance = 10, chance_to_be_selected = 3;
+    const int green_variance = 3, blue_variance = 1, variance_divider = 10, gray_reduction = 20;
 
   public:
     void loop() {
